@@ -12,4 +12,6 @@ public class KategoriaProduktu
     [Required] 
     [MaxLength(100)]
     public string Nazwa { get; set; } = string.Empty;
+
+    public List<Produkt> Produkty { get; set; } = new();
 }

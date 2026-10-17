@@ -23,4 +23,6 @@ public class Klient
     
     [MaxLength(15)]
     public string? Email { get; set; }
+
+    public List<Wizyta> Wizyty { get; set; } = new();
 }
