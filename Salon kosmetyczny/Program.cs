@@ -1,6 +1,6 @@
+using Salon_kosmetyczny.Data;
 using Salon_kosmetyczny.Components;
 using Microsoft.EntityFrameworkCore;
-using Salon_kosmetyczny.Data; 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
