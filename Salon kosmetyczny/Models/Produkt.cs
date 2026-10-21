@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Salon_kosmetyczny.Models;
 
 [Table("Produkt")]
-public class Produkt
+public abstract class Produkt
 {
     [Key]
     public int  Id { get; set; }

@@ -19,7 +19,12 @@ public class SalonDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
         modelBuilder.Entity<SkladZabiegu>()
             .HasKey(sz => new { sz.ZabiegId, sz.ProduktId });
+        modelBuilder.Entity<Produkt>()
+            .HasDiscriminator(p => p.JednostkaMiary)
+            .HasValue<ProduktPlynny>("ml")
+            .HasValue<ProduktSztukowy>("szt");
     }
 }
