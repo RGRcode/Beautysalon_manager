@@ -35,4 +35,9 @@ public abstract class Produkt
     [Required]
     [Column(TypeName = "decimal(10,2)")]
     public decimal Cena { get; set; }
+
+    public virtual void ZmniejszStan(decimal ilosc)
+    {
+        AktualnyStan-=ilosc;
+    }
 }
