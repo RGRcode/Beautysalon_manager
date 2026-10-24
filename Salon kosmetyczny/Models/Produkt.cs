@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Salon_Kosmetyczny.Exceptions;
 
 namespace Salon_kosmetyczny.Models;
 
@@ -19,10 +20,10 @@ public abstract class Produkt
     [Required]
     [MaxLength(100)]
     public string? Marka { get; set; }
-    
+
     [Required]
     [Column(TypeName = "decimal(10,2)")]
-    public decimal AktualnyStan {get; set;}
+    public decimal AktualnyStan { get; private set; } = 0;
     
     [Required]
     [Column(TypeName = "decimal(10,2)")]
@@ -38,6 +39,24 @@ public abstract class Produkt
 
     public virtual void ZmniejszStan(decimal ilosc)
     {
-        AktualnyStan-=ilosc;
+        if (ilosc < 0)
+        {
+            throw new ArgumentException("Zużywana ilość musi być większa od zera.");
+        }
+
+        if (AktualnyStan - ilosc < 0)
+        {
+            throw new BrakWMagazynieException($"Brak wystarczającej ilości produktu'{Nazwa}'. Brakuje $'{ilosc-AktualnyStan}' $'{JednostkaMiary}'.");
+        }
+        AktualnyStan -= ilosc;
+    }
+
+    public virtual void ZwiększStan(decimal ilosc)
+    {
+        if (ilosc <= 0)
+        {
+            throw new ArgumentException("Ilość z dostawy musi być większa od zera.");
+        }
+        AktualnyStan += ilosc;
     }
 }
