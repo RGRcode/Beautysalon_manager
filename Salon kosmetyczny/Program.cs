@@ -1,6 +1,7 @@
 using Salon_kosmetyczny.Data;
 using Salon_kosmetyczny.Components;
 using Microsoft.EntityFrameworkCore;
+using Salon_kosmetyczny.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -12,6 +13,7 @@ builder.Services.AddDbContext<SalonDbContext>(options =>
 
 var app = builder.Build();
 
+builder.Services.AddScoped<IInventoryService, InventoryService>();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
