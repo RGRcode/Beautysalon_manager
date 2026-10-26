@@ -13,7 +13,9 @@ builder.Services.AddDbContext<SalonDbContext>(options =>
 
 var app = builder.Build();
 
+// Rejestracja serwisów
 builder.Services.AddScoped<IInventoryService, InventoryService>();
+builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
