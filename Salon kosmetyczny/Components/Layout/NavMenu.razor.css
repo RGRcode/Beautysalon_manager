@@ -1,93 +1,171 @@
+
+/* ========================================
+   GÓRNY PASEK MENU
+   ======================================== */
+
+.top-row {
+    height: 3.5rem;
+    display: flex;
+    align-items: center;
+    background-color: #ffc458;
+}
+
+.navbar-brand {
+    color: #ffffff;
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.navbar-brand:hover {
+    color: #fce7ea;
+}
+
+
+/* ========================================
+   PRZYCISK ROZWIJANIA MENU
+   ======================================== */
+
 .navbar-toggler {
     appearance: none;
     cursor: pointer;
     width: 3.5rem;
     height: 2.5rem;
-    color: white;
     position: absolute;
     top: 0.5rem;
     right: 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.55%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") no-repeat center/1.75rem rgba(255, 255, 255, 0.1);
+    z-index: 10;
+    border: 1px solid rgb(255 255 255 / 0.76);
+    border-radius: 0.5rem;
+    background-color: #ffb54b;
+    color: white;
 }
 
 .navbar-toggler:checked {
-    background-color: rgba(255, 255, 255, 0.5);
+    background-color: #ffd16b;
 }
 
-.top-row {
-    height: 3.5rem;
-    background-color: rgba(0,0,0,0.4);
-}
 
-.navbar-brand {
-    font-size: 1.1rem;
-}
-
-.bi {
-    display: inline-block;
-    position: relative;
-    width: 1.25rem;
-    height: 1.25rem;
-    margin-right: 0.75rem;
-    top: -1px;
-    background-size: cover;
-}
-
-.bi-house-door-fill-nav-menu {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' class='bi bi-house-door-fill' viewBox='0 0 16 16'%3E%3Cpath d='M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5Z'/%3E%3C/svg%3E");
-}
-
-.bi-plus-square-fill-nav-menu {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' class='bi bi-plus-square-fill' viewBox='0 0 16 16'%3E%3Cpath d='M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm6.5 4.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3a.5.5 0 0 1 1 0z'/%3E%3C/svg%3E");
-}
-
-.bi-list-nested-nav-menu {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' class='bi bi-list-nested' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M4.5 11.5A.5.5 0 0 1 5 11h10a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5zm-2-4A.5.5 0 0 1 3 7h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm-2-4A.5.5 0 0 1 1 3h10a.5.5 0 0 1 0 1H1a.5.5 0 0 1-.5-.5z'/%3E%3C/svg%3E");
-}
-
-.nav-item {
-    font-size: 0.9rem;
-    padding-bottom: 0.5rem;
-}
-
-    .nav-item:first-of-type {
-        padding-top: 1rem;
-    }
-
-    .nav-item:last-of-type {
-        padding-bottom: 1rem;
-    }
-
-    .nav-item ::deep .nav-link {
-        color: #d7d7d7;
-        background: none;
-        border: none;
-        border-radius: 4px;
-        height: 3rem;
-        display: flex;
-        align-items: center;
-        line-height: 3rem;
-        width: 100%;
-    }
-
-.nav-item ::deep a.active {
-    background-color: rgba(255,255,255,0.37);
-    color: white;
-}
-
-.nav-item ::deep .nav-link:hover {
-    background-color: rgba(255,255,255,0.1);
-    color: white;
-}
+/* ----- Obszar Menu -----*/
 
 .nav-scrollable {
     display: none;
+    background-color: #ffd7aa;
 }
 
 .navbar-toggler:checked ~ .nav-scrollable {
     display: block;
 }
+
+
+/* ----- ELEMENTY Menu -----*/
+
+
+.nav-item {
+    font-size: 0.95rem;
+    padding: 0.25rem 0.75rem;
+}
+
+.nav-item:first-of-type {
+    padding-top: 1rem;
+}
+
+.nav-item:last-of-type {
+    padding-bottom: 1rem;
+}
+
+/*Nawigacja*/
+
+.nav-item ::deep .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    width: 100%;
+    min-height: 3rem;
+    padding: 0.65rem 0.85rem;
+    border: none;
+    border-radius: 0.5rem;
+    background: transparent;
+    color: #f1e7e9;
+    text-decoration: none;
+    line-height: 1.4;
+    transition:
+            background-color 0.2s ease,
+            color 0.2s ease;
+}
+
+/* Najechanie kursorem */
+.nav-item ::deep .nav-link:hover {
+    background-color: #c1ab73;
+    color: #ffffff;
+}
+
+/* Aktywna strona */
+.nav-item ::deep a.active {
+    background-color: #ffeab3;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+
+/* ----- IKONY -----*/
+
+.bi {
+    display: inline-block;
+    flex: 0 0 1.25rem;
+    width: 1.25rem;
+    height: 1.25rem;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+}
+
+
+/* Start — dom */
+
+.bi-house-door-fill-nav-menu {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5Z'/%3E%3C/svg%3E");
+}
+
+
+/* Magazyn — pudełko */
+
+.bi-box-seam-nav-menu {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M8.186.113a.5.5 0 0 0-.372 0l-6.5 2.5A.5.5 0 0 0 1 3.08v9.84a.5.5 0 0 0 .314.465l6.5 2.5a.5.5 0 0 0 .372 0l6.5-2.5A.5.5 0 0 0 15 12.92V3.08a.5.5 0 0 0-.314-.465zM8 1.116 13.19 3.11 8 5.107 2.81 3.11zM2 3.813l5.5 2.116v8.76L2 12.574zm6.5 10.876v-8.76L14 3.813v8.76z'/%3E%3C/svg%3E");
+}
+
+
+/* Kategorie — etykiety */
+
+.bi-tags-fill-nav-menu {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M2 1a1 1 0 0 0-1 1v5.586a1 1 0 0 0 .293.707l6.414 6.414a1 1 0 0 0 1.414 0l4.586-4.586a1 1 0 0 0 0-1.414L7.293 2.293A1 1 0 0 0 6.586 2H2zm2.5 3a1 1 0 1 1 0 2 1 1 0 0 1 0-2z'/%3E%3Cpath d='M9.5 1H14a1 1 0 0 1 1 1v4.5z'/%3E%3C/svg%3E");
+}
+
+
+/* Klienci — użytkownicy */
+
+.bi-people-fill-nav-menu {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6M5.216 14A2.24 2.24 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.3 6.3 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1zM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5'/%3E%3C/svg%3E");
+}
+
+
+/* Zabiegi — lista */
+
+.bi-card-list-nav-menu {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M14 2a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1zM3 5h2V4H3zm3 0h7V4H6zM3 8h2V7H3zm3 0h7V7H6zm-3 3h2v-1H3zm3 0h7v-1H6z'/%3E%3C/svg%3E");
+}
+
+
+/* Wizyta — kalendarz */
+
+.bi-calendar-check-fill-nav-menu {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M4 .5a.5.5 0 0 1 1 0V1h6V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1zM2 5v9a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V5zm10.354 2.146a.5.5 0 0 0-.708-.708L8 10.086 6.854 8.94a.5.5 0 1 0-.708.707l1.5 1.5a.5.5 0 0 0 .708 0z'/%3E%3C/svg%3E");
+}
+
+
+/* ========================================
+   RESPONSYWNOŚĆ
+   ======================================== */
 
 @media (min-width: 641px) {
     .navbar-toggler {
@@ -95,11 +173,19 @@
     }
 
     .nav-scrollable {
-        /* Never collapse the sidebar for wide screens */
         display: block;
-
-        /* Allow sidebar to scroll for tall menus */
         height: calc(100vh - 3.5rem);
+        overflow-y: auto;
+    }
+}
+
+@media (max-width: 640px) {
+    .top-row {
+        padding-right: 4.5rem;
+    }
+
+    .nav-scrollable {
+        max-height: calc(100vh - 3.5rem);
         overflow-y: auto;
     }
 }

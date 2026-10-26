@@ -1,28 +1,46 @@
 ﻿<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">Salon kosmetyczny</a>
+        <a class="navbar-brand" href="">Manager</a>
     </div>
 </div>
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler"/>
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
 
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
     <nav class="flex-column">
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Start
             </NavLink>
         </div>
 
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
+            <NavLink class="nav-link" href="magazyn">
+                <span class="bi bi-box-seam-nav-menu" aria-hidden="true"></span> Magazyn
+            </NavLink>
+        </div>
+        
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="kategorie">
+                <span class="bi bi-tags-fill-nav-menu" aria-hidden="true"></span> Kategorie
             </NavLink>
         </div>
 
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
+            <NavLink class="nav-link" href="klienci">
+                <span class="bi bi-people-fill-nav-menu" aria-hidden="true"></span> Klienci
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="zabiegi">
+                <span class="bi bi-card-list-nav-menu" aria-hidden="true"></span> Zabiegi (Receptury)
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="wizyta">
+                <span class="bi bi-calendar-check-fill-nav-menu" aria-hidden="true"></span> Zrealizuj wizytę
             </NavLink>
         </div>
     </nav>
