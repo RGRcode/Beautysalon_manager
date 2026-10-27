@@ -7,7 +7,7 @@
     height: 3.5rem;
     display: flex;
     align-items: center;
-    background-color: #ffc458;
+    background-color: #ca8c63;
 }
 
 .navbar-brand {
@@ -50,7 +50,7 @@
 
 .nav-scrollable {
     display: none;
-    background-color: #ffd7aa;
+    background-color: #7a4d30;
 }
 
 .navbar-toggler:checked ~ .nav-scrollable {
@@ -96,13 +96,13 @@
 
 /* Najechanie kursorem */
 .nav-item ::deep .nav-link:hover {
-    background-color: #c1ab73;
+    background-color: #573d33;
     color: #ffffff;
 }
 
 /* Aktywna strona */
 .nav-item ::deep a.active {
-    background-color: #ffeab3;
+    background-color: #ca8c63;
     color: #ffffff;
     font-weight: 600;
 }

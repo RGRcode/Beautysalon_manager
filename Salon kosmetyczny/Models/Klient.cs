@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Salon_kosmetyczny.Models;
 
-[Table("Klientci")]
+[Table("Klienci")]
 public class Klient
 {
     [Key]
@@ -11,7 +11,7 @@ public class Klient
 
     [Required] 
     [MaxLength(100)] 
-    public string Imię { get; set; } = string.Empty;
+    public string Imie { get; set; } = string.Empty;
     
     [Required]
     [MaxLength(100)]
@@ -19,7 +19,7 @@ public class Klient
     
     [Required]
     [MaxLength(15)]
-    public string Nr_telefonu { get; set; } = string.Empty;
+    public string NrTelefonu { get; set; } = string.Empty;
     
     [MaxLength(15)]
     public string? Email { get; set; }
