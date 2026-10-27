@@ -1,65 +1,155 @@
 @page "/klienci"
 @using Microsoft.EntityFrameworkCore
 @using Salon_kosmetyczny.Data
-@using Salon_kosmetyczny.Models 
+@using Salon_kosmetyczny
+@using Salon_kosmetyczny.Models
 @inject SalonDbContext DbContext
 
 <PageTitle>Klienci - BeautySalon</PageTitle>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1>Baza Klientów</h1>
-    <button class="btn btn-primary">
-        <i class="bi bi-person-plus-fill"></i> Dodaj nowego klienta
-    </button>
-</div>
+@if (!pokazFormularz)
+{
+    @* --- WIDOK TABELI (gdy formularz jest ukryty) --- *@
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1>Baza Klientów</h1>
+        @* Przycisk podpięty pod metodę PokazFormularz() *@
+        <button class="btn btn-primary" @onclick="PokazFormularz">
+            <i class="bi bi-person-plus-fill"></i> Dodaj nowego klienta
+        </button>
+    </div>
 
-@if (listaKlientow == null)
-{
-    <p><em>Ładowanie danych z bazy...</em></p>
-}
-else if (!listaKlientow.Any())
-{
-    <div class="alert alert-warning">Brak klientów w bazie danych.</div>
+    @if (listaKlientow == null)
+    {
+        <p><em>Ładowanie danych z bazy...</em></p>
+    }
+    else if (!listaKlientow.Any())
+    {
+        <div class="alert alert-warning">Brak klientów w bazie danych.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover shadow-sm">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Imię</th>
+                        <th>Nazwisko</th>
+                        <th>Nr telefonu</th>
+                        <th>Email</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var klient in listaKlientow)
+                    {
+                        <tr>
+                            <td>@klient.Id</td>
+                            <td>@klient.Imie</td>
+                            <td>@klient.Nazwisko</td>
+                            <td>@klient.NrTelefonu</td>
+                            <td>@(string.IsNullOrEmpty(klient.Email) ? "- brak -" : klient.Email)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
 }
 else
 {
-    <div class="table-responsive">
-        <table class="table table-striped table-hover shadow-sm">
-            <thead class="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Imię</th>
-                    <th>Nazwisko</th>
-                    <th>Nr telefonu</th>
-                    <th>Email</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var klient in listaKlientow)
-                {
-                    <tr>
-                        <td>@klient.Id</td>
-                        <td>@klient.Imie</td>
-                        <td>@klient.Nazwisko</td>
-                        <td>@klient.NrTelefonu</td>
-                        <td>@(string.IsNullOrEmpty(klient.Email) ? "- brak -" : klient.Email)</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+    @* --- WIDOK FORMULARZA (gdy kliknięto przycisk) --- *@
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Dodaj nowego klienta</h4>
+        </div>
+        <div class="card-body">
+            @* EditForm podpina się pod nasz pusty obiekt nowyKlient. Metoda ZapiszKlienta odpali się tylko, gdy dane są poprawne *@
+            <EditForm Model="nowyKlient" OnValidSubmit="ZapiszKlienta">
+                
+                @* To uruchamia odczytywanie [Required] z naszej klasy Klient *@
+                <DataAnnotationsValidator />
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Imię *</label>
+                        <InputText @bind-Value="nowyKlient.Imie" class="form-control" />
+                        <ValidationMessage For="@(() => nowyKlient.Imie)" class="text-danger" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Nazwisko *</label>
+                        <InputText @bind-Value="nowyKlient.Nazwisko" class="form-control" />
+                        <ValidationMessage For="@(() => nowyKlient.Nazwisko)" class="text-danger" />
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Nr Telefonu *</label>
+                        <InputText @bind-Value="nowyKlient.NrTelefonu" class="form-control" />
+                        <ValidationMessage For="@(() => nowyKlient.NrTelefonu)" class="text-danger" />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Email (opcjonalnie)</label>
+                        <InputText @bind-Value="nowyKlient.Email" class="form-control" />
+                        <ValidationMessage For="@(() => nowyKlient.Email)" class="text-danger" />
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-save"></i> Zapisz
+                    </button>
+                    <button type="button" class="btn btn-secondary" @onclick="UkryjFormularz">
+                        Anuluj
+                    </button>
+                </div>
+            </EditForm>
+        </div>
     </div>
 }
 
 @code {
-    // Zmienna przechowująca listę klientów
     private List<Klient>? listaKlientow;
+    
+    // Zmienne do obsługi formularza
+    private bool pokazFormularz = false;
+    private Klient nowyKlient = new(); // Tworzymy pusty obiekt, który wypełni formularz
 
-    // Metoda uruchamiana przy wejściu na stronę
     protected override async Task OnInitializedAsync()
     {
-        // OrderBy układa ich alfabetycznie po nazwisku!
+        await PobierzKlientow();
+    }
+
+    private async Task PobierzKlientow()
+    {
         listaKlientow = await DbContext.Klienci
-                                       .OrderBy(k => k.Nazwisko)
+                                       .OrderBy(k => k.Id)
                                        .ToListAsync();
+    }
+
+    // Metody sterujące widokiem
+    private void PokazFormularz()
+    {
+        nowyKlient = new Klient(); // Zawsze czyścimy formularz przed nowym dodaniem
+        pokazFormularz = true;
+    }
+
+    private void UkryjFormularz()
+    {
+        pokazFormularz = false;
+    }
+
+    // Metoda uruchamiana przyciskiem Zapisz (tylko gdy walidacja przejdzie pomyślnie!)
+    private async Task ZapiszKlienta()
+    {
+        // 1. Dodajemy wypełniony obiekt do śledzenia przez EF Core
+        DbContext.Klienci.Add(nowyKlient);
+        
+        // 2. Fizycznie zapisujemy zmiany w bazie SQL Server
+        await DbContext.SaveChangesAsync();
+        
+        // 3. Wracamy do tabeli i odświeżamy listę
+        pokazFormularz = false;
+        await PobierzKlientow();
     }
 }
