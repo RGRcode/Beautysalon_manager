@@ -10,7 +10,7 @@ public class SalonDbContext : DbContext
     }
 
     public DbSet<Klient> Klienci => Set<Klient>();
-    public DbSet<KategoriaProduktu> KategorieProduktów => Set<KategoriaProduktu>();
+    public DbSet<KategoriaProduktu> Kategorie_produktow => Set<KategoriaProduktu>();
     public DbSet<Produkt> Produkty => Set<Produkt>();
     public DbSet<Zabieg> Zabiegi => Set<Zabieg>();
     public DbSet<SkladZabiegu> SkladZabiegów => Set<SkladZabiegu>();

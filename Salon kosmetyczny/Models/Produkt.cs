@@ -4,7 +4,7 @@ using Salon_Kosmetyczny.Exceptions;
 
 namespace Salon_kosmetyczny.Models;
 
-[Table("Produkt")]
+[Table("Produkty")]
 public abstract class Produkt
 {
     [Key]
