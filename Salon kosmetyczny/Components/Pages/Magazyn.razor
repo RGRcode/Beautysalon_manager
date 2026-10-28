@@ -1,0 +1,93 @@
+@page "/magazyn"
+@using Salon_kosmetyczny.Models
+@using Salon_kosmetyczny.Services
+@* Tym razem wstrzykujemy nasz specjalistyczny serwis, a nie DbContext! *@
+@inject IInventoryService InventoryService
+
+<PageTitle>Magazyn - BeautySalon</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Stan Magazynu</h1>
+    <button class="btn btn-primary">
+        <i class="bi bi-box-seam"></i> Nowy produkt
+    </button>
+</div>
+
+@if (listaProduktow == null)
+{
+    <p><em>Wczytywanie stanu magazynu...</em></p>
+}
+else if (!listaProduktow.Any())
+{
+    <div class="alert alert-info">Magazyn jest pusty. Zrób pierwsze zakupy!</div>
+}
+else
+{
+    <div class="table-responsive shadow-sm">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>Nazwa</th>
+                    <th>Marka</th>
+                    <th>Kategoria</th>
+                    <th class="text-end">Stan</th>
+                    <th class="text-end">Min.</th>
+                    <th>J.m.</th>
+                    <th class="text-end">Akcje</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var produkt in listaProduktow)
+                {
+                    // LOGIKA BIZNESOWA W WIDOKU: Sprawdzamy czy produktu brakuje
+                    bool brakNaStanie = produkt.AktualnyStan <= produkt.MinimalnyStan;
+                    
+                    // Jeśli brakuje, przypisujemy klasę Bootstrapa "table-danger" (czerwone tło)
+                    string wierszCss = brakNaStanie ? "table-danger" : "";
+
+                    <tr class="@wierszCss">
+                        <td class="fw-bold">
+                            @produkt.Nazwa
+                            @if (brakNaStanie)
+                            {
+                                // Wyświetlamy dodatkową etykietkę MAŁO
+                                <span class="badge bg-danger ms-2"><i class="bi bi-exclamation-triangle"></i> MAŁO</span>
+                            }
+                        </td>
+                        <td>@produkt.Marka</td>
+                        
+                        @* Zabezpieczenie przed brakiem kategorii (znak zapytania to tzw. null-conditional operator) *@
+                        <td>@(produkt.Kategoria?.Nazwa ?? "Brak")</td>
+                        
+                        <td class="text-end fw-bold @(brakNaStanie ? "text-danger" : "text-success")">
+                            @produkt.AktualnyStan
+                        </td>
+                        <td class="text-end">@produkt.MinimalnyStan</td>
+                        <td>@produkt.JednostkaMiary</td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-outline-success">
+                                <i class="bi bi-box-arrow-in-down"></i> Dostawa
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private List<Produkt>? listaProduktow;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // 1. Pobieramy produkty korzystając z naszej architektury serwisów 
+        listaProduktow = await InventoryService.PobierzWszystkieProduktyAsync();
+
+        // 2. Sortujemy listę tak (LINQ), aby produkty, których brakuje, zawsze były na samej górze
+        listaProduktow = listaProduktow
+            .OrderBy(p => p.AktualnyStan > p.MinimalnyStan) // False (czyli braki) pojawią się przed True
+            .ThenBy(p => p.Nazwa)                           // Reszta sortowana alfabetycznie
+            .ToList();
+    }
+}
