@@ -1,0 +1,125 @@
+@page "/zabiegi"
+@using Microsoft.EntityFrameworkCore
+@using Salon_kosmetyczny.Data
+@using Salon_kosmetyczny.Models
+@inject SalonDbContext DbContext
+
+<PageTitle>Zabiegi i Receptury - BeautySalon</PageTitle>
+
+<h1>Katalog Zabiegów</h1>
+<p class="text-muted">Wybierz zabieg z listy, aby zobaczyć jego recepturę (zużycie magazynowe).</p>
+
+<div class="row mt-4">
+    <!-- Lewa kolumna: Lista zabiegów (Master) -->
+    <div class="col-md-5 mb-4">
+        @if (listaZabiegow == null)
+        {
+            <p><em>Ładowanie...</em></p>
+        }
+        else
+        {
+            <div class="list-group shadow-sm">
+                @foreach (var zabieg in listaZabiegow)
+                {
+                    // Sprawdzamy, czy ten zabieg jest obecnie wybrany, aby podświetlić go na niebiesko
+                    var isSelected = wybranyZabieg?.Id == zabieg.Id;
+                    var cssClass = isSelected ? "list-group-item active" : "list-group-item list-group-item-action";
+
+                    <button type="button" class="@cssClass d-flex justify-content-between align-items-center" @onclick="() => WybierzZabieg(zabieg)">
+                        <div>
+                            <h5 class="mb-1">@zabieg.Nazwa</h5>
+                            <small class="@(isSelected ? "text-white-50" : "text-muted")">
+                                <i class="bi bi-clock"></i> @zabieg.CzasTrwania min.
+                            </small>
+                        </div>
+                        <span class="badge @(isSelected ? "bg-light text-primary" : "bg-primary") rounded-pill">
+                            @zabieg.Cena.ToString("C")
+                        </span>
+                    </button>
+                }
+            </div>
+        }
+    </div>
+
+    <!-- Prawa kolumna: Szczegóły receptury (Detail) -->
+    <div class="col-md-7">
+        @if (wybranyZabieg != null)
+        {
+            <div class="card shadow border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-card-list"></i> Receptura: @wybranyZabieg.Nazwa</h5>
+                </div>
+                <div class="card-body p-0">
+                    @if (!wybranyZabieg.SkladyZabiegow.Any())
+                    {
+                        <div class="p-3 text-center text-muted">
+                            <i class="bi bi-info-circle display-6 d-block mb-2"></i>
+                            Ten zabieg nie ma jeszcze przypisanej receptury.
+                        </div>
+                    }
+                    else
+                    {
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Produkt</th>
+                                    <th class="text-end">Zużycie na 1 zabieg</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var skladnik in wybranyZabieg.SkladyZabiegow)
+                                {
+                                    <tr>
+                                        <td>
+                                            @* Zabezpieczenie ? w razie gdyby produkt został usunięty *@
+                                            <strong>@skladnik.Produkt?.Nazwa</strong>
+                                            <div class="text-muted small">@skladnik.Produkt?.Marka</div>
+                                        </td>
+                                        <td class="text-end align-middle">
+                                            <span class="badge bg-secondary fs-6">
+                                                @skladnik.WymaganaIlosc @skladnik.Produkt?.JednostkaMiary
+                                            </span>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                </div>
+                <div class="card-footer bg-light text-end">
+                    <button class="btn btn-sm btn-outline-primary" disabled>
+                        <i class="bi bi-pencil"></i> Edytuj recepturę (Wkrótce)
+                    </button>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-secondary d-flex align-items-center">
+                <i class="bi bi-arrow-left-circle-fill fs-4 me-3"></i>
+                <div>
+                    Wybierz zabieg z listy po lewej stronie, aby wyświetlić jego składniki.
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private List<Zabieg>? listaZabiegow;
+    private Zabieg? wybranyZabieg;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Jednym zapytaniem wyciągnięcie Zabieg -> Jego Receptury (SkladZabiegu) -> Oraz Produkty do nich przypisane
+        listaZabiegow = await DbContext.Zabiegi
+                                       .Include(z => z.SkladyZabiegow)
+                                           .ThenInclude(sz => sz.Produkt)
+                                       .ToListAsync();
+    }
+
+    private void WybierzZabieg(Zabieg zabieg)
+    {
+        wybranyZabieg = zabieg;
+    }
+}

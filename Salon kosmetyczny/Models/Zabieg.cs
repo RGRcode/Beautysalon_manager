@@ -22,6 +22,6 @@ public class Zabieg
     [Column(TypeName = "decimal(10,2)")]
     public decimal Cena { get; set; }
 
-    public List<SkladZabiegu> Receptura { get; set; } = new();
+    public List<SkladZabiegu> SkladyZabiegow { get; set; } = new();
     public List<Wizyta> Wizyty { get; set; } = new();
 }

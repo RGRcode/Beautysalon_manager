@@ -17,7 +17,7 @@ public class AppointmentService : IAppointmentService
     public async Task ZrealizujWizyteAsync(int klientId, int zabiegId, DateTime dataWizyty)
     {
         var zabieg = await _context.Zabiegi
-            .Include(z => z.Receptura)
+            .Include(z => z.SkladyZabiegow)
                 .ThenInclude(sz => sz.Produkt)
             .FirstOrDefaultAsync(z => z.Id == zabiegId);
 
@@ -28,7 +28,7 @@ public class AppointmentService : IAppointmentService
         if (!klientIstnieje)
             throw new Exception("Nie znaleziono takiego klienta.");
 
-        foreach (var skladnik in zabieg.Receptura)
+        foreach (var skladnik in zabieg.SkladyZabiegow)
         {
             if (skladnik.Produkt != null)
             {

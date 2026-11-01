@@ -19,6 +19,6 @@ public class SkladZabiegu
     public Produkt? Produkt { get; set; }
     
     [Required]
-    [Column(TypeName = "decimal(10,2)")]
-    public Decimal WymaganaIlosc { get; set; }
+    [Column("WymaganaIlość", TypeName = "decimal(10,2)")] 
+    public decimal WymaganaIlosc { get; set; }
 }
