@@ -2,15 +2,17 @@
 @using Microsoft.EntityFrameworkCore
 @using Salon_kosmetyczny.Data
 @using Salon_kosmetyczny.Models
+@using Salon_kosmetyczny.Services
 @inject SalonDbContext DbContext
+@inject IInventoryService InventoryService
 
 <PageTitle>Zabiegi i Receptury - BeautySalon</PageTitle>
 
 <h1>Katalog Zabiegów</h1>
-<p class="text-muted">Wybierz zabieg z listy, aby zobaczyć jego recepturę (zużycie magazynowe).</p>
+<p class="text-muted">Wybierz zabieg z listy, aby zobaczyć lub edytować jego recepturę.</p>
 
 <div class="row mt-4">
-    <!-- Lewa kolumna: Lista zabiegów (Master) -->
+    <!-- Lewa kolumna: Lista zabiegów -->
     <div class="col-md-5 mb-4">
         @if (listaZabiegow == null)
         {
@@ -21,7 +23,6 @@
             <div class="list-group shadow-sm">
                 @foreach (var zabieg in listaZabiegow)
                 {
-                    // Sprawdzamy, czy ten zabieg jest obecnie wybrany, aby podświetlić go na niebiesko
                     var isSelected = wybranyZabieg?.Id == zabieg.Id;
                     var cssClass = isSelected ? "list-group-item active" : "list-group-item list-group-item-action";
 
@@ -41,7 +42,7 @@
         }
     </div>
 
-    <!-- Prawa kolumna: Szczegóły receptury (Detail) -->
+    <!-- Prawa kolumna: Szczegóły receptury -->
     <div class="col-md-7">
         @if (wybranyZabieg != null)
         {
@@ -71,7 +72,6 @@
                                 {
                                     <tr>
                                         <td>
-                                            @* Zabezpieczenie ? w razie gdyby produkt został usunięty *@
                                             <strong>@skladnik.Produkt?.Nazwa</strong>
                                             <div class="text-muted small">@skladnik.Produkt?.Marka</div>
                                         </td>
@@ -87,8 +87,9 @@
                     }
                 </div>
                 <div class="card-footer bg-light text-end">
-                    <button class="btn btn-sm btn-outline-primary" disabled>
-                        <i class="bi bi-pencil"></i> Edytuj recepturę (Wkrótce)
+                    @* PRZYCISK URUCHAMIAJĄCY MODAL *@
+                    <button class="btn btn-sm btn-primary" @onclick="OtworzModalDodawania">
+                        <i class="bi bi-plus-circle"></i> Dodaj składnik do receptury
                     </button>
                 </div>
             </div>
@@ -98,28 +99,144 @@
             <div class="alert alert-secondary d-flex align-items-center">
                 <i class="bi bi-arrow-left-circle-fill fs-4 me-3"></i>
                 <div>
-                    Wybierz zabieg z listy po lewej stronie, aby wyświetlić jego składniki.
+                    Wybierz zabieg z listy po lewej stronie, aby wyświetlić lub edytować jego składniki.
                 </div>
             </div>
         }
     </div>
 </div>
 
+@* MODAL DO DODAWANIA SKŁADNIKA *@
+@if (pokazModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.6);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-primary">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Dodaj składnik do: @wybranyZabieg?.Nazwa</h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="ZamknijModal"></button>
+                </div>
+                <div class="modal-body">
+                    
+                    @if (bladFormularza != null)
+                    {
+                        <div class="alert alert-danger">@bladFormularza</div>
+                    }
+
+                    <div class="mb-3">
+                        <label class="form-label">Wybierz produkt z magazynu:</label>
+                        @* Rozwijana lista powiązana ze zmienną wybraneIdProduktu *@
+                        <select class="form-select" @bind="wybraneIdProduktu">
+                            <option value="0">-- Wybierz produkt --</option>
+                            @if (dostepneProdukty != null)
+                            {
+                                foreach (var p in dostepneProdukty)
+                                {
+                                    <option value="@p.Id">@p.Nazwa (@p.JednostkaMiary)</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Wymagane zużycie:</label>
+                        <input type="number" class="form-control" @bind="podanaIlosc" min="0.1" step="0.1" />
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="ZamknijModal">Anuluj</button>
+                    <button type="button" class="btn btn-success" @onclick="ZapiszSkladnik">Zapisz w recepturze</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 @code {
     private List<Zabieg>? listaZabiegow;
     private Zabieg? wybranyZabieg;
+    private List<Produkt>? dostepneProdukty;
+
+    // Zmienne do obsługi Modala
+    private bool pokazModal = false;
+    private int wybraneIdProduktu = 0;
+    private decimal podanaIlosc = 1;
+    private string? bladFormularza;
 
     protected override async Task OnInitializedAsync()
     {
-        // Jednym zapytaniem wyciągnięcie Zabieg -> Jego Receptury (SkladZabiegu) -> Oraz Produkty do nich przypisane
+        await WczytajZabiegi();
+        
+        // Pobieramy produkty korzystając z serwisu, aby wyświetlić je w liście rozwijanej
+        dostepneProdukty = await InventoryService.PobierzWszystkieProduktyAsync();
+    }
+
+    private async Task WczytajZabiegi()
+    {
         listaZabiegow = await DbContext.Zabiegi
                                        .Include(z => z.SkladyZabiegow)
                                            .ThenInclude(sz => sz.Produkt)
                                        .ToListAsync();
+
+        // Jeśli jakiś zabieg był wybrany przed odświeżeniem, podmień go na nową wersję z bazy
+        if (wybranyZabieg != null)
+        {
+            wybranyZabieg = listaZabiegow.FirstOrDefault(z => z.Id == wybranyZabieg.Id);
+        }
     }
 
     private void WybierzZabieg(Zabieg zabieg)
     {
         wybranyZabieg = zabieg;
+    }
+
+    private void OtworzModalDodawania()
+    {
+        wybraneIdProduktu = 0;
+        podanaIlosc = 1;
+        bladFormularza = null;
+        pokazModal = true;
+    }
+
+    private void ZamknijModal()
+    {
+        pokazModal = false;
+    }
+
+    private async Task ZapiszSkladnik()
+    {
+        // 1. Podstawowa walidacja
+        if (wybraneIdProduktu == 0)
+        {
+            bladFormularza = "Musisz wybrać produkt z listy.";
+            return;
+        }
+        if (podanaIlosc <= 0)
+        {
+            bladFormularza = "Ilość musi być większa od zera.";
+            return;
+        }
+        if (wybranyZabieg!.SkladyZabiegow.Any(sz => sz.ProduktId == wybraneIdProduktu))
+        {
+            bladFormularza = "Ten produkt jest już w recepturze tego zabiegu!";
+            return;
+        }
+
+        // 2. Magia EF Core - tworzymy nowy obiekt SkladZabiegu
+        var nowySkladnik = new SkladZabiegu
+        {
+            ZabiegId = wybranyZabieg.Id,
+            ProduktId = wybraneIdProduktu,
+            WymaganaIlosc = podanaIlosc
+        };
+
+        // Dodajemy go do bazy danych w sposób zautomatyzowany (DbContext.Add samo rozpozna tabelę!)
+        DbContext.Add(nowySkladnik);
+        await DbContext.SaveChangesAsync();
+
+        // 3. Zamykamy modal i odświeżamy dane
+        ZamknijModal();
+        await WczytajZabiegi();
     }
 }
