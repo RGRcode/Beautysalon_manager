@@ -1,7 +1,6 @@
 @page "/magazyn"
 @using Salon_kosmetyczny.Models
 @using Salon_kosmetyczny.Services
-@* Tym razem wstrzykujemy nasz specjalistyczny serwis, a nie DbContext! *@
 @inject IInventoryService InventoryService
 
 <PageTitle>Magazyn - BeautySalon</PageTitle>
@@ -39,10 +38,7 @@ else
             <tbody>
                 @foreach (var produkt in listaProduktow)
                 {
-                    // LOGIKA BIZNESOWA W WIDOKU: Sprawdzamy czy produktu brakuje
                     bool brakNaStanie = produkt.AktualnyStan <= produkt.MinimalnyStan;
-                    
-                    // Jeśli brakuje, przypisujemy klasę Bootstrapa "table-danger" (czerwone tło)
                     string wierszCss = brakNaStanie ? "table-danger" : "";
 
                     <tr class="@wierszCss">
@@ -50,22 +46,19 @@ else
                             @produkt.Nazwa
                             @if (brakNaStanie)
                             {
-                                // Wyświetlamy dodatkową etykietkę MAŁO
                                 <span class="badge bg-danger ms-2"><i class="bi bi-exclamation-triangle"></i> MAŁO</span>
                             }
                         </td>
                         <td>@produkt.Marka</td>
-                        
-                        @* Zabezpieczenie przed brakiem kategorii (znak zapytania to tzw. null-conditional operator) *@
                         <td>@(produkt.Kategoria?.Nazwa ?? "Brak")</td>
-                        
                         <td class="text-end fw-bold @(brakNaStanie ? "text-danger" : "text-success")">
                             @produkt.AktualnyStan
                         </td>
                         <td class="text-end">@produkt.MinimalnyStan</td>
                         <td>@produkt.JednostkaMiary</td>
                         <td class="text-end">
-                            <button class="btn btn-sm btn-outline-success">
+                            @* Kliknięcie przycisku wywołuje metodę i przekazuje jej konkretny produkt z tego wiersza *@
+                            <button class="btn btn-sm btn-outline-success" @onclick="() => OtworzDialogDostawy(produkt)">
                                 <i class="bi bi-box-arrow-in-down"></i> Dostawa
                             </button>
                         </td>
@@ -76,18 +69,88 @@ else
     </div>
 }
 
+@* --- OKIENKO MODALNE (Wyskakujące) --- *@
+@if (pokazDialogDostawy)
+{
+    <!-- Tło przyciemniające -->
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.6);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content shadow">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title"><i class="bi bi-box-arrow-in-down"></i> Dostawa produktu</h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="ZamknijDialog"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Przyjmujesz dostawę: <strong>@wybranyProdukt?.Nazwa</strong></p>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Ilość z dostawy (@wybranyProdukt?.JednostkaMiary):</label>
+                        @* Zwykły input typu number powiązany z naszą zmienną iloscZDostawy *@
+                        <input type="number" step="0.5" min="0.5" class="form-control form-control-lg text-center" @bind="iloscZDostawy" />
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" @onclick="ZamknijDialog">Anuluj</button>
+                    <button type="button" class="btn btn-success px-4" @onclick="ZapiszDostawe">
+                        <i class="bi bi-check-circle"></i> Zatwierdź dostawę
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 @code {
     private List<Produkt>? listaProduktow;
 
+    // Zmienne do obsługi wyskakującego okienka
+    private bool pokazDialogDostawy = false;
+    private Produkt? wybranyProdukt;
+    private decimal iloscZDostawy = 1;
+
     protected override async Task OnInitializedAsync()
     {
-        // 1. Pobieramy produkty korzystając z naszej architektury serwisów 
-        listaProduktow = await InventoryService.PobierzWszystkieProduktyAsync();
+        await OdswiezListe();
+    }
 
-        // 2. Sortujemy listę tak (LINQ), aby produkty, których brakuje, zawsze były na samej górze
+    // Metoda pomocnicza do pobierania i sortowania danych
+    private async Task OdswiezListe()
+    {
+        listaProduktow = await InventoryService.PobierzWszystkieProduktyAsync();
         listaProduktow = listaProduktow
-            .OrderBy(p => p.AktualnyStan > p.MinimalnyStan) // False (czyli braki) pojawią się przed True
-            .ThenBy(p => p.Nazwa)                           // Reszta sortowana alfabetycznie
+            .OrderBy(p => p.AktualnyStan > p.MinimalnyStan)
+            .ThenBy(p => p.Nazwa)
             .ToList();
+    }
+
+    // Otwiera okienko dla konkretnego produktu
+    private void OtworzDialogDostawy(Produkt produkt)
+    {
+        wybranyProdukt = produkt;
+        iloscZDostawy = 1; // resetowanie wartości z poprzedniej dostawy
+        pokazDialogDostawy = true;
+    }
+
+    // Zamknięcie okienka (bez zapisywania)
+    private void ZamknijDialog()
+    {
+        pokazDialogDostawy = false;
+        wybranyProdukt = null;
+    }
+
+    // Zapisanie dostawy do bazy!
+    private async Task ZapiszDostawe()
+    {
+        if (wybranyProdukt != null && iloscZDostawy > 0)
+        {
+            // 1. Wywołanie serwisu, który sam zapisze zmianę do bazy
+            await InventoryService.ZwiekszStanMagazynowyAsync(wybranyProdukt.Id, iloscZDostawy);
+            
+            // 2. Zamykanie okienka
+            ZamknijDialog();
+            
+            // 3. Pobieranie z bazy odświeżoną listę (aby odświeżyć tabelę i ukryć alerty)
+            await OdswiezListe();
+        }
     }
 }
