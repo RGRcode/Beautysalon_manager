@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Salon_Kosmetyczny.Exceptions;
+using Salon_kosmetyczny.Exceptions;
 
 namespace Salon_kosmetyczny.Models;
 

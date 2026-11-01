@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Salon_kosmetyczny.Data;
 using Salon_kosmetyczny.Models;
-using Salon_Kosmetyczny.Exceptions;
+using Salon_kosmetyczny.Exceptions;
 
 namespace Salon_kosmetyczny.Services;
 

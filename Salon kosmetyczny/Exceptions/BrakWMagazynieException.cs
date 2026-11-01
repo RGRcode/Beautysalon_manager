@@ -1,6 +1,6 @@
 using System;
 
-namespace Salon_Kosmetyczny.Exceptions;
+namespace Salon_kosmetyczny.Exceptions;
 
 public class BrakWMagazynieException : Exception
 {

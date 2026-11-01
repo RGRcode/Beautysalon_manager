@@ -1,0 +1,217 @@
+@page "/wizyta"
+@using Microsoft.EntityFrameworkCore
+@using Salon_kosmetyczny.Data
+@using Salon_kosmetyczny.Models
+@using Salon_kosmetyczny.Services
+@using Salon_kosmetyczny.Exceptions
+@inject SalonDbContext DbContext
+@inject IAppointmentService AppointmentService
+
+<PageTitle>Realizacja Wizyty - BeautySalon</PageTitle>
+
+<h1>Rejestracja i Realizacja Wizyty</h1>
+<p class="text-muted">Zarejestruj wykonany zabieg – system automatycznie rozliczy zużycie kosmetyków z magazynu.</p>
+
+@* --- KOMUNIKATY BIZNESOWE --- *@
+@if (!string.IsNullOrEmpty(komunikatSukcesu))
+{
+    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i> @komunikatSukcesu
+        <button type="button" class="btn-close" @onclick="() => komunikatSukcesu = null"></button>
+    </div>
+}
+
+@if (!string.IsNullOrEmpty(komunikatBledu))
+{
+    <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+        <i class="bi bi-exclamation-octagon-fill me-2"></i> @komunikatBledu
+        <button type="button" class="btn-close" @onclick="() => komunikatBledu = null"></button>
+    </div>
+}
+
+<div class="row mt-4">
+    <!-- Formularz rejestracji wizyty -->
+    <div class="col-lg-5 mb-4">
+        <div class="card shadow-sm border-primary">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-calendar-plus"></i> Nowa Wizyta</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Klient *</label>
+                    <select class="form-select" @bind="wybraneIdKlienta">
+                        <option value="0">-- Wybierz klienta --</option>
+                        @if (listaKlientow != null)
+                        {
+                            foreach (var k in listaKlientow)
+                            {
+                                <option value="@k.Id">@k.Nazwisko @k.Imie (@k.NrTelefonu)</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Wykonany zabieg *</label>
+                    <select class="form-select" @bind="wybraneIdZabiegu">
+                        <option value="0">-- Wybierz zabieg --</option>
+                        @if (listaZabiegow != null)
+                        {
+                            foreach (var z in listaZabiegow)
+                            {
+                                <option value="@z.Id">@z.Nazwa — @z.Cena.ToString("C") (@z.CzasTrwania min)</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Data i godzina wizyty</label>
+                    <input type="datetime-local" class="form-control" @bind="dataWizyty" />
+                </div>
+
+                <button class="btn btn-success w-100 py-2 fw-bold" @onclick="ZatwierdzWizyte" disabled="@isPrzetwarzanie">
+                    @if (isPrzetwarzanie)
+                    {
+                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                        <span>Rozliczanie magazynu...</span>
+                    }
+                    else
+                    {
+                        <i class="bi bi-check2-circle me-1"></i>
+                        <span>Zatwierdź i rozlicz magazyn</span>
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Historia ostatnich wizyt -->
+    <div class="col-lg-7">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0"><i class="bi bi-clock-history"></i> Ostatnio zrealizowane wizyty</h5>
+            </div>
+            <div class="card-body p-0">
+                @if (historiaWizyt == null)
+                {
+                    <p class="p-3"><em>Ładowanie historii...</em></p>
+                }
+                else if (!historiaWizyt.Any())
+                {
+                    <div class="p-3 text-muted text-center">Brak zarejestrowanych wizyt w systemie.</div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0 align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Klient</th>
+                                    <th>Zabieg</th>
+                                    <th class="text-end">Kwota</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var w in historiaWizyt)
+                                {
+                                    <tr>
+                                        <td>@w.DataCzasWizyty.ToString("dd.MM.yyyy HH:mm")</td>
+                                        <td class="fw-bold">@w.Klient?.Nazwisko @w.Klient?.Imie</td>
+                                        <td>@w.Zabieg?.Nazwa</td>
+                                        <td class="text-end fw-bold text-success">@w.CenaOstateczna.ToString("C")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<Klient>? listaKlientow;
+    private List<Zabieg>? listaZabiegow;
+    
+    // Jednoznaczne wskazanie modelu bazy danych eliminuje kolizję nazw z komponentem strony
+    private List<Salon_kosmetyczny.Models.Wizyta>? historiaWizyt;
+
+    private int wybraneIdKlienta = 0;
+    private int wybraneIdZabiegu = 0;
+    private DateTime dataWizyty = DateTime.Now;
+
+    private bool isPrzetwarzanie = false;
+    private string? komunikatSukcesu;
+    private string? komunikatBledu;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ZaladujDanePoczatkowe();
+    }
+
+    private async Task ZaladujDanePoczatkowe()
+    {
+        listaKlientow = await DbContext.Klienci.OrderBy(k => k.Nazwisko).ToListAsync();
+        listaZabiegow = await DbContext.Zabiegi.OrderBy(z => z.Nazwa).ToListAsync();
+        await OdswiezHistorieWizyt();
+    }
+
+    private async Task OdswiezHistorieWizyt()
+    {
+        historiaWizyt = await DbContext.Wizyty
+            .Include(w => w.Klient)
+            .Include(w => w.Zabieg)
+            .OrderByDescending(w => w.DataCzasWizyty)
+            .Take(10)
+            .ToListAsync();
+    }
+
+    private async Task ZatwierdzWizyte()
+    {
+        komunikatBledu = null;
+        komunikatSukcesu = null;
+
+        if (wybraneIdKlienta == 0)
+        {
+            komunikatBledu = "Musisz wybrać klienta z listy.";
+            return;
+        }
+
+        if (wybraneIdZabiegu == 0)
+        {
+            komunikatBledu = "Musisz wybrać zabieg z listy.";
+            return;
+        }
+
+        isPrzetwarzanie = true;
+
+        try
+        {
+            await AppointmentService.ZrealizujWizyteAsync(wybraneIdKlienta, wybraneIdZabiegu, dataWizyty);
+
+            var zabieg = listaZabiegow?.FirstOrDefault(z => z.Id == wybraneIdZabiegu);
+            komunikatSukcesu = $"Wizyta została pomyślnie zarejestrowana! Kosmetyki dla zabiegu '{zabieg?.Nazwa}' zostały odliczone z magazynu.";
+
+            wybraneIdKlienta = 0;
+            wybraneIdZabiegu = 0;
+            dataWizyty = DateTime.Now;
+
+            await OdswiezHistorieWizyt();
+        }
+        catch (BrakWMagazynieException ex)
+        {
+            komunikatBledu = $"BŁĄD MAGAZYNU: {ex.Message}";
+        }
+        catch (Exception ex)
+        {
+            komunikatBledu = $"Wystąpił błąd: {ex.Message}";
+        }
+        finally
+        {
+            isPrzetwarzanie = false;
+        }
+    }
+}
