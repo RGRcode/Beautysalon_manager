@@ -7,14 +7,15 @@
     height: 3.5rem;
     display: flex;
     align-items: center;
-    background-color: #ca8c63;
+    background-color: #6e4233;
 }
 
 .navbar-brand {
-    color: #ffffff;
+    color: #D4AF37;
     font-size: 1.2rem;
-    font-weight: 600;
+    font-weight: bold;
     text-decoration: none;
+    text-transform: uppercase;
 }
 
 .navbar-brand:hover {
@@ -35,12 +36,17 @@
     top: 0.5rem;
     right: 1rem;
     z-index: 10;
-    border: 1px solid rgb(255 255 255 / 0.76);
+    border: 1px solid rgba(255, 255, 255, 0.76);
     border-radius: 0.5rem;
     background-color: #ffb54b;
-    color: white;
+
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2.5' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 1.75rem;
 }
 
+/* Kiedy menu jest otwarte (checkbox zaznaczony) */
 .navbar-toggler:checked {
     background-color: #ffd16b;
 }
@@ -50,7 +56,7 @@
 
 .nav-scrollable {
     display: none;
-    background-color: #7a4d30;
+    background-color: #5e392c;
 }
 
 .navbar-toggler:checked ~ .nav-scrollable {
@@ -96,7 +102,7 @@
 
 /* Najechanie kursorem */
 .nav-item ::deep .nav-link:hover {
-    background-color: #573d33;
+    background-color: #ca8c63;
     color: #ffffff;
 }
 

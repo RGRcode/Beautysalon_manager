@@ -1,0 +1,112 @@
+/* ========================================
+   NAGŁÓWEK I GŁÓWNE PRZYCISKI
+   ======================================== */
+h1 {
+    color: #7a4d30;
+    font-weight: bold;
+}
+
+
+/* ========================================
+   TABELA MAGAZYNU
+   ======================================== */
+.table-responsive.shadow-sm {
+    border: 2px solid #5e392c;
+    border-radius: 8px;
+    background-color: white;
+}
+
+/* Ciemny nagłówek tabeli */
+.table-dark th {
+    background-color: #5e392c !important;
+    color: #fce7ea;
+    border-bottom: none;
+}
+
+/* Przycisk akcji "Dostawa" w tabeli */
+.btn-outline-success {
+    color: #7a4d30;
+    border-color: #7a4d30;
+    border-radius: 20px;
+}
+
+.btn-outline-success:hover {
+    background-color: #7a4d30;
+    color: white;
+}
+
+/* Wyróżnienie produktów, których jest mało (nadpisanie .table-danger) */
+.table-danger > td {
+    background-color: #fbafaf !important;
+}
+
+/* Znaczek "MAŁO" */
+.badge.bg-danger {
+    background-color: #d9534f !important;
+    border-radius: 12px;
+    font-weight: 500;
+}
+
+/* Kolor tekstu dla dobrego stanu magazynowego */
+.text-success {
+    color: #7a4d30 !important;
+}
+
+/* ========================================
+   OKIENKO MODALNE (DOSTAWA)
+   ======================================== */
+.modal-content {
+    border: 2px solid #5e392c;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+/* Nagłówek modala */
+.modal-header.bg-success {
+    background-color: #5e392c !important;
+    border-bottom: none;
+}
+
+.modal-header .modal-title {
+    font-weight: bold;
+    color: white;
+}
+
+/* Input z ilością */
+.form-control-lg {
+    border: 2px solid #e0c8b8;
+    border-radius: 8px;
+    color: #573d33;
+    font-weight: bold;
+}
+
+.form-control-lg:focus {
+    border-color: #ca8c63;
+    box-shadow: 0 0 0 0.25rem rgba(202, 140, 99, 0.25);
+}
+
+/* Przycisk zapisu w modalu */
+.modal-footer .btn-success {
+    background-color: #7a4d30;
+    border-color: #7a4d30;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 8px;
+}
+
+.modal-footer .btn-success:hover {
+    background-color: #573d33;
+    border-color: #573d33;
+}
+
+/* Przycisk anuluj w modalu */
+.modal-footer .btn-secondary {
+    background-color: #f7f7f7;
+    color: #573d33;
+    border: 1px solid #d6d5d5;
+    border-radius: 8px;
+}
+
+.modal-footer .btn-secondary:hover {
+    background-color: #e0c8b8;
+}
